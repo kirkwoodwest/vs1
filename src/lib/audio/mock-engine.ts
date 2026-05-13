@@ -49,7 +49,9 @@ export const createMockAudioEngine = (
       const ratio = index / SPECTRUM_SIZE
       const bandWeight = 1 - ratio * 0.7
       const shimmer = Math.sin(elapsed * (4 + ratio * 9) + ratio * 8) * 0.08
-      return clamp((low * bandWeight + mid * (1 - Math.abs(0.45 - ratio)) + high * ratio) * 0.52 + shimmer)
+      return clamp(
+        (low * bandWeight + mid * (1 - Math.abs(0.45 - ratio)) + high * ratio) * 0.52 + shimmer
+      )
     })
 
     update({

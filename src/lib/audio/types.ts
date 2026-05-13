@@ -18,5 +18,13 @@ export interface AudioState {
   spread: number
   waveform: number[]
   spectrum: number[]
-  captureMode: 'mock' | 'microphone-planned' | 'system-native-planned'
+  captureMode:
+    | 'mock'
+    | 'microphone-live'
+    | 'microphone-permission-needed'
+    | 'microphone-unavailable'
+    | 'system-live'
+    | 'system-native-planned'
+  statusMessage: string
+  errorMessage: string | null
 }

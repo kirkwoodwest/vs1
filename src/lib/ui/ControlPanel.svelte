@@ -8,7 +8,10 @@
 
   const modeLabel = {
     mock: 'Mock engine active',
-    'microphone-planned': 'Microphone capture planned',
+    'microphone-live': 'Microphone live',
+    'microphone-permission-needed': 'Microphone permission needed',
+    'microphone-unavailable': 'Microphone unavailable',
+    'system-live': 'Mac output live',
     'system-native-planned': 'Native output capture planned'
   } as const
 </script>
@@ -18,8 +21,8 @@
     <p class="subtle">Control surface</p>
     <h2>Visualizer bootstrap</h2>
     <p class="body">
-      The scene is already reactive. The next implementation pass swaps the mock source for live
-      microphone and macOS output adapters.
+      Microphone capture is live. Mac output now uses a native macOS path and depends on Screen
+      Recording permission.
     </p>
   </div>
 
@@ -50,9 +53,13 @@
       class="toggle"
       on:click={() => audioControls.toggle()}
     >
-      {$audioState.running ? 'Pause reactive signal' : 'Start reactive signal'}
+      {$audioState.running ? 'Stop capture' : 'Start capture'}
     </button>
     <p class="mode">{modeLabel[$audioState.captureMode]}</p>
+    <p class="mode">{$audioState.statusMessage}</p>
+    {#if $audioState.errorMessage}
+      <p class="error">{$audioState.errorMessage}</p>
+    {/if}
   </div>
 
   <div class="section">
@@ -97,6 +104,10 @@
       <strong>{sourceLabel[$audioState.source]}</strong>
     </div>
     <div class="metric">
+      <span>Mode</span>
+      <strong>{modeLabel[$audioState.captureMode]}</strong>
+    </div>
+    <div class="metric">
       <span>Level</span>
       <strong>{Math.round($audioState.smoothedLevel * 100)}%</strong>
     </div>
@@ -120,19 +131,21 @@
     flex: 1;
     flex-direction: column;
     gap: 16px;
-    border-radius: 28px;
-    padding: 22px;
+    min-height: 0;
+    overflow: auto;
+    border-radius: 24px;
+    padding: 16px;
   }
 
   .section {
-    border-radius: 20px;
+    border-radius: 16px;
     background: rgba(255, 255, 255, 0.025);
-    padding: 16px;
+    padding: 14px;
   }
 
   h2 {
     margin: 4px 0 10px;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     line-height: 1.05;
   }
 
@@ -140,7 +153,17 @@
   .mode {
     margin: 0;
     color: rgba(227, 238, 250, 0.7);
-    font-size: 0.95rem;
+    font-size: 0.88rem;
+  }
+
+  .mode + .mode {
+    margin-top: 8px;
+  }
+
+  .error {
+    margin: 10px 0 0;
+    color: #ffb199;
+    font-size: 0.9rem;
   }
 
   .button-row {
@@ -154,7 +177,7 @@
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.04);
     color: #edf6ff;
-    padding: 12px 14px;
+    padding: 10px 12px;
     transition:
       background 120ms ease,
       border-color 120ms ease,
@@ -181,7 +204,7 @@
   }
 
   label + label {
-    margin-top: 14px;
+    margin-top: 12px;
   }
 
   label span {
